@@ -53,10 +53,13 @@ class JSONRPC10Request(JSONRPCBaseRequest):
 
     @params.setter
     def params(self, value):
-        if not isinstance(value, (list, tuple)):
+        if value is not None and not isinstance(value, (list, tuple, dict)):
             raise ValueError("Incorrect params {0}".format(value))
 
-        self._data["params"] = list(value)
+        value = list(value) if isinstance(value, tuple) else value
+
+        if value is not None:
+            self._data["params"] = value
 
     @property
     def _id(self):
