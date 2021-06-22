@@ -4,16 +4,32 @@ import datetime
 import decimal
 import inspect
 import json
+import numpy as np
 
 from . import six
 
+class NumpyEncoder(json.JSONEncoder):
+    """ Special json encoder for numpy types """
+    def default(self, obj):
+        if isinstance(obj, np.integer):
+            return int(obj)
+        elif isinstance(obj, np.floating):
+            return float(obj)
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 class JSONSerializable(six.with_metaclass(ABCMeta, object)):
 
     """ Common functionality for json serializable objects."""
-
-    serialize = staticmethod(json.dumps)
-    deserialize = staticmethod(json.loads)
+    
+    @staticmethod
+    def serialize(x):
+        return json.dumps(x, cls=NumpyEncoder)
+    
+    @staticmethod
+    def deserialize(x):
+        return json.loads(x)
 
     @abstractmethod
     def json(self):
